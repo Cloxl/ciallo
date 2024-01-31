@@ -16,13 +16,13 @@ import {Button} from 'antd';
 const AudioPlayer: React.FC = () => {
     const [audioSrc, setAudioSrc] = useState<string | null>(null);
     const [gifSrc, setGifSrc] = useState<string | null>(null);
-    const {maxTextsPerDraw, setMaxTextsPerDraw, maxTexts, setMaxTexts} = useContext(AudioContext);
+    const {maxTextsPerDraw, maxTexts} = useContext(AudioContext);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
-
+    const audioURL = `${process.env.PUBLIC_URL}/audio/ciallo.aac`;
+    const gifURL = `${process.env.PUBLIC_URL}/imgs/gif/ciallo.gif`;
+    
     useEffect(() => {
-        const audioURL = `${process.env.PUBLIC_URL}/audio/ciallo.aac`;
-        const gifURL = `${process.env.PUBLIC_URL}/imgs/gif/ciallo.gif`;
         setAudioSrc(audioURL);
         setGifSrc(gifURL);
 
@@ -80,14 +80,14 @@ const AudioPlayer: React.FC = () => {
                         const animate = () => {
                             ctx.clearRect(0, 0, canvas.width, canvas.height);
                             texts = texts.filter(text => {
-                                if (text.x + ctx.measureText(text.content).width < 0) {
-                                    return false;  // 如果文本已经离开了画布，就移除这个文本
+                                if (text.x + ctx.measureText(text.content).width < -5) {
+                                    return false;
                                 } else {
                                     ctx.font = `${text.size} ${text.font}`;
                                     ctx.fillStyle = text.color;
                                     ctx.fillText(text.content, text.x, text.y);
                                     text.x -= text.duration;
-                                    return true;  // 如果文本还在画布上，就保留这个文本
+                                    return true;
                                 }
                             });
                             animationFrameId = requestAnimationFrame(animate);
@@ -96,12 +96,11 @@ const AudioPlayer: React.FC = () => {
                     };
 
                     const handleVisibilityChange = () => {
+                        // 当网页被隐藏时，停止绘制
                         if (document.hidden) {
-                            // 当文档不可见时，停止动画
                             clearInterval(timer);
                             cancelAnimationFrame(animationFrameId);
                         } else {
-                            // 当文档变为可见时，重新开始动画
                             setupAnimation();
                         }
                     };
@@ -120,7 +119,7 @@ const AudioPlayer: React.FC = () => {
             }
         }, 0);
 
-    }, [maxTextsPerDraw, canvasRef]);
+    }, [maxTextsPerDraw, canvasRef, maxTexts, audioURL, gifURL]);
 
     const handleClick = () => {
         if (audioSrc) {
@@ -147,11 +146,11 @@ const AudioPlayer: React.FC = () => {
     };
 
     return (
-        <div onClick={handleClick} className={styles.page}>
+        <div className={styles.page}>
             <div>
-                <canvas ref={canvasRef} className={styles.CialloCanvas}/>
+                <canvas ref={canvasRef} onClick={handleClick} className={styles.CialloCanvas}/>
             </div>
-            <div className={styles.CenterCialloContainer}>
+            <div className={styles.CenterCialloContainer} onClick={handleClick}>
                 <div className={styles.shakeText}>{textSpans}</div>
             </div>
             <Button onClick={showSettingsModal} icon={<BarsOutlined/>} className={styles.settingButton}/>
