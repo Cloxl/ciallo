@@ -6,7 +6,7 @@
 
 .CenterCialloContainer {
     width: 540px;
-    height: 120px;
+    height: 4rem;
     margin: auto;
     position: absolute;
     top: 0;
@@ -16,18 +16,58 @@
 }
 
 .CialloCanvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
 }
 
+.settingButton {
+    margin-left: 0.2rem;
+    margin-top: 0.2rem;
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translate(0, 0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translate(-1px, -1px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translate(1px, 1px);
+    }
+}
+
+.shakeTextSplit {
+    font-size: 3rem;
+    user-select: none;
+}
+.shakeText {
+    display: inline-block;
+    width: 540px;
+    height: 3rem;
+}
+.shakeText span {
+    display: inline-block;
+    animation: shake 0.8s infinite;
+}
+
+.shakeText span:nth-child(odd) {
+    animation-delay: 0.1s;
+}
+
+.shakeText span:nth-child(even) {
+    animation-delay: 0s;
+}
+
+
 @keyframes marquee {
-      0% {
+    0% {
         transform: translate(100%, 0);
-      }
-      100% {
+    }
+    100% {
         transform: translate(-100%, 0);
-      }
+    }
 }

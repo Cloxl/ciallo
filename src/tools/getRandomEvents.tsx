@@ -1,5 +1,15 @@
 const fonts = ["Arial, sans-serif", "Georgia, serif", "Times New Roman, serif"];
 
+export const specialChars: { [key: string]: string } = {
+    '～': '&#12316;',
+    '∠': '&#8736;',
+    '・': '&bull;',
+    'ω': '&#969;',
+    '<': '&lt;',
+    '⌒': '&#8978;',
+    '★': '&#9733;'
+};
+
 export const getRandomFont = () => {
     return fonts[Math.floor(Math.random() * fonts.length)];
 };

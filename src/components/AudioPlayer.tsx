@@ -1,14 +1,24 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import styles from '../css/audio.module.css'
-import {getRandomColor, getRandomDuration, getRandomFont, getRandomSize, getRandomText} from '../tools/getRandomEvents';
-import { BarsOutlined } from '@ant-design/icons';
-import { Button } from 'antd';
+import {AudioContext} from "./AudioContext";
+import {SettingsModal} from "./SettingsModal";
+import {
+    getRandomColor,
+    getRandomDuration,
+    getRandomFont,
+    getRandomSize,
+    getRandomText,
+    specialChars
+} from '../tools/getRandomEvents';
+import {BarsOutlined} from '@ant-design/icons';
+import {Button} from 'antd';
 
 const AudioPlayer: React.FC = () => {
     const [audioSrc, setAudioSrc] = useState<string | null>(null);
     const [gifSrc, setGifSrc] = useState<string | null>(null);
-    const [maxTextsPerDraw, setMaxTextsPerDraw] = useState<number>(10);
+    const {maxTextsPerDraw, setMaxTextsPerDraw, maxTexts, setMaxTexts} = useContext(AudioContext);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
 
     useEffect(() => {
         const audioURL = `${process.env.PUBLIC_URL}/audio/ciallo.aac`;
@@ -34,8 +44,6 @@ const AudioPlayer: React.FC = () => {
                     }[] = [];
                     let timer: string | number | NodeJS.Timeout | undefined;
                     let animationFrameId: number;
-
-                    const maxTexts = 100;
 
                     const setupAnimation = () => {
                         if (timer) {
@@ -125,15 +133,32 @@ const AudioPlayer: React.FC = () => {
         return null;
     }
 
+    const text = 'Ciallo～(∠・ω< )⌒★';
+    const textSpans = text.split('').map((char, index) => {
+        const key = `char-${index}`;
+        const specialCharHtml = specialChars[char] || char;
+        return (
+            <span key={key} className={styles.shakeTextSplit} dangerouslySetInnerHTML={{__html: specialCharHtml}}/>
+        );
+    });
+
+    const showSettingsModal = () => {
+        setIsSettingsModalVisible(true);
+    };
+
     return (
         <div onClick={handleClick} className={styles.page}>
             <div>
                 <canvas ref={canvasRef} className={styles.CialloCanvas}/>
             </div>
             <div className={styles.CenterCialloContainer}>
-                <img src={gifSrc} alt="ciallo gif"/>
+                <div className={styles.shakeText}>{textSpans}</div>
             </div>
-           <Button type="primary" icon={<BarsOutlined />} />
+            <Button onClick={showSettingsModal} icon={<BarsOutlined/>} className={styles.settingButton}/>
+            <SettingsModal
+                isVisible={isSettingsModalVisible}
+                onClose={() => setIsSettingsModalVisible(false)}
+            />
         </div>
     );
 };
