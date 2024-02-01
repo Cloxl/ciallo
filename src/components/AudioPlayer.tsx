@@ -11,21 +11,80 @@ import {
     specialChars
 } from '../tools/getRandomEvents';
 import {BarsOutlined} from '@ant-design/icons';
-import {Button} from 'antd';
+import {Alert, Button} from 'antd';
 
 const AudioPlayer: React.FC = () => {
-    const [audioSrc, setAudioSrc] = useState<string | null>(null);
-    const [gifSrc, setGifSrc] = useState<string | null>(null);
-    const {maxTextsPerDraw, maxTexts} = useContext(AudioContext);
-    const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
-    const audioURL = `${process.env.PUBLIC_URL}/audio/ciallo.aac`;
-    const gifURL = `${process.env.PUBLIC_URL}/imgs/gif/ciallo.gif`;
-    
-    useEffect(() => {
-        setAudioSrc(audioURL);
-        setGifSrc(gifURL);
+    const cilloAudioURL = `${process.env.PUBLIC_URL}/audio/ciallo.aac`;
+    const bgmURL = `${process.env.PUBLIC_URL}/audio/bgm1.wav`;
+    const gameAudioURL = `${process.env.PUBLIC_URL}/audio/game.wav`;
 
+    const [audioSrc, setAudioSrc] = useState<string | null>(null);
+    const [bgmSrc, setBgmSrc] = useState<string | null>(null);
+    const [gameAudioSrc, setGameAudioSrc] = useState<string | null>(null);
+    const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const {maxTextsPerDraw, maxTexts, backgroundMusic, textMove, randomAudio, allowGame} = useContext(AudioContext);
+    const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
+    const [playAttemptFailed, setPlayAttemptFailed] = useState(false);
+
+    useEffect(() => {
+        setAudioSrc(cilloAudioURL);
+        setBgmSrc(bgmURL);
+        setGameAudioSrc(gameAudioURL);
+    }, [bgmURL, cilloAudioURL, gameAudioURL]);
+
+    useEffect(() => {
+        let src = backgroundMusic && allowGame ? gameAudioSrc : backgroundMusic ? bgmSrc : null;
+        if (src) {
+            const newAudio = new Audio(src);
+            newAudio.loop = true;
+
+            const playAudio = async () => {
+                try {
+                    await newAudio.play();
+                    setPlayAttemptFailed(false);
+                } catch (error) {
+                    console.error("Audio play failed", error);
+                    setPlayAttemptFailed(true);
+                }
+            };
+
+            playAudio();
+
+            // 设置当前音频状态
+            setAudio(newAudio);
+
+            // 清理函数
+            return () => {
+                newAudio.pause();
+                newAudio.src = '';
+            };
+        }
+    }, [backgroundMusic, allowGame, bgmSrc, gameAudioSrc]);
+
+    useEffect(() => {
+        const tryToPlayAudio = () => {
+            if (playAttemptFailed && audio) {
+                audio.play().then(() => {
+                    setPlayAttemptFailed(false);
+                }).catch(error => {
+                    console.error("Playback fails after user interaction:", error);
+                });
+            }
+        };
+
+        // 交互事件
+        document.addEventListener('click', tryToPlayAudio);
+        document.addEventListener('keydown', tryToPlayAudio);
+
+        return () => {
+            document.removeEventListener('click', tryToPlayAudio);
+            document.removeEventListener('keydown', tryToPlayAudio);
+        };
+    }, [playAttemptFailed, audio]);
+
+    useEffect(() => {
         setTimeout(() => {
             const canvas = canvasRef.current;
             if (canvas) {
@@ -118,26 +177,52 @@ const AudioPlayer: React.FC = () => {
                 }
             }
         }, 0);
+    }, [maxTextsPerDraw, canvasRef, maxTexts]);
 
-    }, [maxTextsPerDraw, canvasRef, maxTexts, audioURL, gifURL]);
-
-    const handleClick = () => {
+    const handleClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
         if (audioSrc) {
-            const audio = new Audio(audioSrc);
-            audio.play().then(r => r).catch(e => e);
+            const cialloAudio = new Audio(audioSrc);
+            cialloAudio.play().then(r => r).catch(e => console.error('ciallo audio play failed', e));
         }
+        const span = document.createElement("span");
+        const maxX = document.documentElement.clientWidth - 162;
+        const maxY = document.documentElement.clientHeight - 22;
+        const spanX = Math.min(e.clientX, maxX);
+        const spanY = Math.min(e.clientY, maxY);
+
+        span.className = styles.clickEffect;
+        span.style.left = `${spanX}px`;
+        span.style.top = `${spanY}px`;
+        span.style.font = getRandomFont();
+        span.textContent = getRandomText();
+        span.style.color = getRandomColor();
+
+        document.body.appendChild(span);
+
+        setTimeout(() => {
+            span.remove();
+        }, 1500);
     };
 
-    if (!audioSrc || !gifSrc) {
+    if (!audioSrc) {
         return null;
     }
 
-    const text = 'Ciallo～(∠・ω< )⌒★';
-    const textSpans = text.split('').map((char, index) => {
-        const key = `char-${index}`;
+    const textSpans1 = 'Ciallo～(∠・ω< )⌒★'.split('').map((char, index) => {
+        const key = `char-1-${index}`;
         const specialCharHtml = specialChars[char] || char;
         return (
-            <span key={key} className={styles.shakeTextSplit} dangerouslySetInnerHTML={{__html: specialCharHtml}}/>
+            <span key={key} className={`${styles.shakeTextSplit}`}
+                  dangerouslySetInnerHTML={{__html: specialCharHtml}}/>
+        );
+    });
+
+    const textSpans2 = '☆⌒(<ω・∠)～Ciallo'.split('').map((char, index) => {
+        const key = `char-2-${index}`;
+        const specialCharHtml = specialChars[char] || char;
+        return (
+            <span key={key} className={`${styles.shakeTextSplit}`}
+                  dangerouslySetInnerHTML={{__html: specialCharHtml}}/>
         );
     });
 
@@ -148,14 +233,26 @@ const AudioPlayer: React.FC = () => {
     return (
         <div className={styles.page}>
             <div>
-                <canvas ref={canvasRef} onClick={handleClick} className={styles.CialloCanvas}/>
+                <canvas ref={canvasRef} onClick={handleClick} className={styles.cialloCanvas}/>
             </div>
-            <div className={styles.CenterCialloContainer} onClick={handleClick}>
-                <div className={styles.shakeText}>{textSpans}</div>
+            <div className={`${styles.centerCialloContainer} ${textMove ? styles.moveContainer : ''}`}
+                 onClick={handleClick}>
+                <div className={textMove ? styles.textFirstHalf : ''}>
+                    <div className={styles.shakeText}>
+                        {textSpans1}
+                    </div>
+                </div>
+                <div className={textMove ? styles.textSecondHalf : styles.hide}>
+                    <div className={styles.shakeText}>
+                        {textSpans2}
+                    </div>
+                </div>
             </div>
             <Button onClick={showSettingsModal} icon={<BarsOutlined/>} className={styles.settingButton}/>
+            <Alert className={`${playAttemptFailed ? '' : styles.hide} ${styles.warringText}`}
+                   message="音频播放失败 请尝试点击网页后看看是否能自动播放" type="warning" showIcon closable/>
             <SettingsModal
-                isVisible={isSettingsModalVisible}
+                isSettingsModalVisible={isSettingsModalVisible}
                 onClose={() => setIsSettingsModalVisible(false)}
             />
         </div>

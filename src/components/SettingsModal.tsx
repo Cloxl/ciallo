@@ -1,56 +1,69 @@
 import {Modal, Input, Radio, RadioChangeEvent, Space, Divider} from "antd";
-import {useContext, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {AudioContext} from "./AudioContext";
 import styles from "../css/setting.module.css";
 
 interface SettingsModalProps {
-    isVisible: boolean;
+    isSettingsModalVisible: boolean;
     onClose: () => void;
 }
 
-export const SettingsModal = ({isVisible, onClose}: SettingsModalProps) => {
+export const SettingsModal = ({isSettingsModalVisible, onClose}: SettingsModalProps) => {
     const {
         maxTextsPerDraw, setMaxTextsPerDraw,
         maxTexts, setMaxTexts,
         textMove, setTextMove,
-        clickEffect, setClickEffect,
+        backgroundMusic, setBackgroundMusic,
         allowGame, setAllowGame,
         randomAudio, setRandomAudio
     } = useContext(AudioContext);
     const [tempMaxTextsPerDraw, setTempMaxTextsPerDraw] = useState(maxTextsPerDraw);
     const [tempMaxTexts, setTempMaxTexts] = useState(maxTexts);
     const [tempTextMove, setTempTextMove] = useState(textMove);
-    const [tempClickEffect, setTempClickEffect] = useState(clickEffect);
+    const [tempBackgroundMusic, setTempBackgroundMusic] = useState(backgroundMusic);
     const [tempAllowGame, setTempAllowGame] = useState(allowGame);
     const [tempRandomAudio, setTempRandomAudio] = useState(randomAudio);
-    const [, setIsModalVisible] = useState(false);
+    const [isModalVisible, setIsModalVisible] = useState(isSettingsModalVisible);
 
-    const handleOpen = () => {
+    useEffect(() => {
+        setIsModalVisible(isSettingsModalVisible);
+    }, [isSettingsModalVisible]);
+
+    const handleOk = () => {
         setMaxTextsPerDraw(tempMaxTextsPerDraw);
         setMaxTexts(tempMaxTexts);
         setTextMove(tempTextMove);
-        setClickEffect(tempClickEffect);
+        setBackgroundMusic(tempBackgroundMusic);
         setAllowGame(tempAllowGame);
         setRandomAudio(tempRandomAudio);
+
+        const settings = {
+            textMove: tempTextMove,
+            backgroundMusic: tempBackgroundMusic,
+            allowGame: tempAllowGame,
+            randomAudio: tempRandomAudio,
+        };
+        localStorage.setItem('setting', JSON.stringify(settings));
         setIsModalVisible(false);
+        onClose();
     };
-    
+
     const textMoveChange = (e: RadioChangeEvent) => {
         setTempTextMove(e.target.value);
     }
-    
+
     const randomAudioChange = (e: RadioChangeEvent) => {
         setTempRandomAudio(e.target.value);
     }
 
     const clickEffectChange = (e: RadioChangeEvent) => {
-        setTempClickEffect(e.target.value);
+        setTempBackgroundMusic(e.target.value);
     }
 
     const allowGameChange = (e: RadioChangeEvent) => {
         setTempAllowGame(e.target.value);
     }
-    
+
     const handleInputMaxTextsPerDrawChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newValue = Number(e.target.value);
         newValue < 1 ? void 0 : setTempMaxTextsPerDraw(newValue);
@@ -71,14 +84,16 @@ export const SettingsModal = ({isVisible, onClose}: SettingsModalProps) => {
         const newValue = e.target.value;
         newValue >= 1 ? setTempMaxTexts(newValue) : void 0;
     };
-    
+
 
     return (
         <Modal
             title="设置"
-            open={isVisible}
-            onOk={handleOpen}
-            onCancel={onClose}
+            open={isModalVisible}
+            onOk={handleOk}
+            onCancel={() => {
+                onClose();
+            }}
             centered
             className={styles.settingsModal}
         >
@@ -107,8 +122,8 @@ export const SettingsModal = ({isVisible, onClose}: SettingsModalProps) => {
                     </Radio.Group>
                 </div>
                 <div>
-                    <p className={styles.ModalText}>点击特效</p>
-                    <Radio.Group onChange={clickEffectChange} value={tempClickEffect}>
+                    <p className={styles.ModalText}>背景音乐</p>
+                    <Radio.Group onChange={clickEffectChange} value={tempBackgroundMusic}>
                         <Radio value={true}>开启</Radio>
                         <Radio value={false}>关闭</Radio>
                     </Radio.Group>

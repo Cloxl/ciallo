@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, {createContext, useEffect, useState} from 'react';
 
 interface IAudioContext {
     maxTextsPerDraw: number;
@@ -7,8 +7,8 @@ interface IAudioContext {
     setMaxTexts: React.Dispatch<React.SetStateAction<number>>;
     textMove: boolean;
     setTextMove: React.Dispatch<React.SetStateAction<boolean>>;
-    clickEffect: boolean;
-    setClickEffect: React.Dispatch<React.SetStateAction<boolean>>;
+    backgroundMusic: boolean;
+    setBackgroundMusic: React.Dispatch<React.SetStateAction<boolean>>;
     allowGame: boolean;
     setAllowGame: React.Dispatch<React.SetStateAction<boolean>>;
     randomAudio: boolean;
@@ -22,8 +22,8 @@ export const AudioContext = createContext<IAudioContext>({
     setMaxTexts: () => {},
     textMove: true,
     setTextMove: () => {},
-    clickEffect: true,
-    setClickEffect: () => {},
+    backgroundMusic: true,
+    setBackgroundMusic: () => {},
     allowGame: false,
     setAllowGame: () => {},
     randomAudio: true,
@@ -34,9 +34,22 @@ export const AudioProvider = ({ children }: { children: React.ReactNode }) => {
     const [maxTextsPerDraw, setMaxTextsPerDraw] = useState(10);
     const [maxTexts, setMaxTexts] = useState(100);
     const [textMove, setTextMove] = useState(true);
-    const [clickEffect, setClickEffect] = useState(true);
+    const [backgroundMusic, setBackgroundMusic] = useState(true);
     const [allowGame, setAllowGame] = useState(false);
     const [randomAudio, setRandomAudio] = useState(true);
+
+    useEffect(() => {
+        const settings = localStorage.getItem('setting');
+        if (settings) {
+            const parsedSettings = JSON.parse(settings);
+
+            // 防小人行为
+            setTextMove(typeof parsedSettings.textMove === 'boolean' ? parsedSettings.textMove : true);
+            setBackgroundMusic(typeof parsedSettings.backgroundMusic === 'boolean' ? parsedSettings.backgroundMusic : true);
+            setAllowGame(typeof parsedSettings.allowGame === 'boolean' ? parsedSettings.allowGame : false);
+            setRandomAudio(typeof parsedSettings.randomAudio === 'boolean' ? parsedSettings.randomAudio : true);
+        }
+    }, []);
 
     const contextValue: IAudioContext = {
         maxTextsPerDraw,
@@ -45,8 +58,8 @@ export const AudioProvider = ({ children }: { children: React.ReactNode }) => {
         setMaxTexts,
         textMove,
         setTextMove,
-        clickEffect,
-        setClickEffect,
+        backgroundMusic,
+        setBackgroundMusic,
         allowGame,
         setAllowGame,
         randomAudio,
