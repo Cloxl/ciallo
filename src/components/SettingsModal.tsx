@@ -101,8 +101,8 @@ export const SettingsModal = ({isSettingsModalVisible, onClose}: SettingsModalPr
                 <div>
                     <p className={styles.ModalText}>音频</p>
                     <Radio.Group onChange={randomAudioChange} value={tempRandomAudio}>
-                        <Radio value={true}>芳乃</Radio>
-                        <Radio value={false}>随机</Radio>
+                        <Radio value={true}>随机</Radio>
+                        <Radio value={false}>芳乃</Radio>
                     </Radio.Group>
                 </div>
                 <div>

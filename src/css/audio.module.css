@@ -20,14 +20,6 @@
     right: 0;
 }
 
-.cialloCanvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-}
-
 .hide {
     opacity: 0;
 }
@@ -124,15 +116,16 @@
         opacity: 1;
     }
     to {
-        transform: translateY(-10rem);
+        transform: translateY(-7rem);
         opacity: 0;
     }
 }
 
 .clickEffect {
     position: absolute;
+    pointer-events: none;
     width: 10rem;
     height: 1.25rem;
     user-select: none;
-    animation: moveAndFade 1.5s forwards;
+    animation: moveAndFade 2s forwards;
 }
