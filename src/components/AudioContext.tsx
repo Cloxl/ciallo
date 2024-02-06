@@ -38,11 +38,11 @@ export const AudioProvider = ({ children }: { children: React.ReactNode }) => {
     const [allowGame, setAllowGame] = useState(false);
     const [randomAudio, setRandomAudio] = useState(true);
 
+
     useEffect(() => {
         const settings = localStorage.getItem('setting');
         if (settings) {
             const parsedSettings = JSON.parse(settings);
-
             // 防小人行为
             setTextMove(typeof parsedSettings.textMove === 'boolean' ? parsedSettings.textMove : true);
             setBackgroundMusic(typeof parsedSettings.backgroundMusic === 'boolean' ? parsedSettings.backgroundMusic : true);

@@ -19,7 +19,6 @@ const AudioPlayer: React.FC = () => {
     const [gameAudioSrc, setGameAudioSrc] = useState<string | null>(null);
     const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
 
-    // const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const {maxTextsPerDraw, maxTexts, backgroundMusic, textMove, randomAudio, allowGame} = useContext(AudioContext);
     const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
     const [playAttemptFailed, setPlayAttemptFailed] = useState(false);

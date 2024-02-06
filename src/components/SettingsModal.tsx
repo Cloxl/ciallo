@@ -26,8 +26,16 @@ export const SettingsModal = ({isSettingsModalVisible, onClose}: SettingsModalPr
     const [isModalVisible, setIsModalVisible] = useState(isSettingsModalVisible);
 
     useEffect(() => {
+        if (isSettingsModalVisible) {
+            setTempMaxTextsPerDraw(maxTextsPerDraw);
+            setTempMaxTexts(maxTexts);
+            setTempTextMove(textMove);
+            setTempBackgroundMusic(backgroundMusic);
+            setTempAllowGame(allowGame);
+            setTempRandomAudio(randomAudio);
+        }
         setIsModalVisible(isSettingsModalVisible);
-    }, [isSettingsModalVisible]);
+    }, [isSettingsModalVisible, maxTextsPerDraw, maxTexts, textMove, backgroundMusic, allowGame, randomAudio]);
 
     const handleOk = () => {
         setMaxTextsPerDraw(tempMaxTextsPerDraw);
@@ -137,10 +145,13 @@ export const SettingsModal = ({isSettingsModalVisible, onClose}: SettingsModalPr
                     <Radio value={100}>B站巅峰弹幕</Radio>
                 </Radio.Group>
                 <Input
-                    type="number"
                     value={tempMaxTextsPerDraw}
                     placeholder="请输入一个正整数的文本单次绘制量"
                     onChange={handleInputMaxTextsPerDrawChange}
+                    count={{
+                        show: false,
+                        max: 3,
+                    }}
                 />
             </Space>
             <p className={styles.ModalText}>绘制总量</p>
@@ -151,10 +162,13 @@ export const SettingsModal = ({isSettingsModalVisible, onClose}: SettingsModalPr
                     <Radio value={100}>B站巅峰弹幕</Radio>
                 </Radio.Group>
                 <Input
-                    type="number"
                     value={tempMaxTexts}
                     placeholder="请输入一个正整数的文本绘制总量"
                     onChange={handleInputMaxTextsChange}
+                    count={{
+                        show: false,
+                        max: 5,
+                    }}
                 />
             </Space>
         </Modal>
