@@ -123,7 +123,7 @@ export class TextObjManager {
     updateContent(context: CanvasRenderingContext2D) {
         if (this.texts.length < this.maxTexts) {
             for (let i = 0; i < this.maxTextsPerDraw; i++) {
-                this.addText(this.width, Math.random() * this.height, context, this.height);
+                this.addText(this.width, Math.random() * this.height, context);
             }
         }
     }

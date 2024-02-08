@@ -147,7 +147,6 @@ export const CanvasComponent: React.FC<CanvasComponentProps> = ({
 
     function handleClick(event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) {
         clickEffect(event.clientX, event.clientY, randomAudio);
-        console.log(allowGame)
         if (allowGame) {
             const isAdd = textManagerRef.current.isAddCount(event.clientX, event.clientY);
             if (isAdd) {
