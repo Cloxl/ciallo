@@ -86,7 +86,7 @@ const AudioPlayer: React.FC = () => {
         );
     });
 
-    const textSpans2 = '☆⌒(<ω・∠)～Ciallo'.split('').map((char, index) => {
+    const textSpans2 = '☆⌒( >ω・∠)～ollɐıɔ'.split('').map((char, index) => {
         const key = `char-2-${index}`;
         const specialCharHtml = specialChars[char] || char;
         return (
